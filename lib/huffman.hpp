@@ -2,18 +2,18 @@
 // Created by newap on 3/28/2020.
 //
 
-#ifndef HW_ARCHIVER_LIB_HUFFMAN_H_
-#define HW_ARCHIVER_LIB_HUFFMAN_H_
+#ifndef HW_ARCHIVER_LIB_HUFFMAN_HPP_
+#define HW_ARCHIVER_LIB_HUFFMAN_HPP_
 
-#include "archiver.h"
+#include "archiver.hpp"
 
 class huffman : public archiver {
  public:
-  void compress(const string& inFileName, const string& outFileName) override {
+  void compress(const string &inFileName, const string &outFileName) override {
     archiver::compress(inFileName, outFileName);
   }
 
-  void decompress(const string& inFileName, const string& outFileName) override {
+  void decompress(const string &inFileName, const string &outFileName) override {
     archiver::decompress(inFileName, outFileName);
   }
 
@@ -38,6 +38,11 @@ class huffman : public archiver {
   }
 
  private:
+  /**
+   * Gets and returns frequency table from contents
+   * @param contents contents
+   * @return frequency table
+   */
   map<ext_char, int> getFrequencyTable(const vector<uint8_t> &contents) {
     map<ext_char, int> result;
 
@@ -49,6 +54,11 @@ class huffman : public archiver {
     return result;
   }
 
+  /**
+   * Builds tree from frequency table
+   * @param frequencies frequency table
+   * @return tree
+   */
   Node *buildEncodingTree(const map<ext_char, int> &frequencies) {
     priority_queue<Node *, vector<Node *>, compare> pq;
 
@@ -63,6 +73,10 @@ class huffman : public archiver {
     return lastNode;
   }
 
+  /**
+   * Makes node tree
+   * @param pq queue with nodes
+   */
   void makeNodeTree(priority_queue<Node *, vector<Node *>, compare> &pq) {
     while (pq.size() > 1) {
 
@@ -80,6 +94,10 @@ class huffman : public archiver {
     }
   }
 
+  /**
+   * Frees node tree
+   * @param root root of the tree
+   */
   void freeNodeTree(Node *root) {
     if (root->one)
       freeNodeTree(root->one);
@@ -90,6 +108,11 @@ class huffman : public archiver {
     delete root;
   }
 
+  /**
+   * Write header with frequency table to stream
+   * @param out stream
+   * @param frequencies frequency table
+   */
   void writeHeader(ostream &out, map<ext_char, int> &frequencies) {
     if (frequencies.count(PSEUDO_EOF) <= 0) {
       error("No PSEUDO_EOF defined.");
@@ -110,6 +133,11 @@ class huffman : public archiver {
     }
   }
 
+  /**
+   * Read frequency table from stream
+   * @param in stream
+   * @return frequency table
+   */
   map<ext_char, int> readHeader(istream &in) {
     map<ext_char, int> result;
 
@@ -134,6 +162,12 @@ class huffman : public archiver {
     return result;
   }
 
+  /**
+   * Encodes contents to output stream
+   * @param contents contents
+   * @param tree node tree
+   * @param out output stream
+   */
   void encode(vector<uint8_t> &contents, Node *tree, ostream &out) {
     map<ext_char, string> encodingMap;
     string code;
@@ -148,6 +182,12 @@ class huffman : public archiver {
     bout.writeToStream(out);
   }
 
+  /**
+ * Decodes input stream and writes results to output stream
+ * @param in input stream
+ * @param tree node tree
+ * @param out output stream
+ */
   void decode(istream &in, Node *tree, ostream &out) {
     map<string, ext_char> decodingMap;
     string code;
@@ -173,7 +213,13 @@ class huffman : public archiver {
     }
   }
 
-  void makeDecodingMap(map<string, ext_char> &decodingMap, Node *node, const string& code) {
+  /**
+   * Makes decoding map
+   * @param decodingMap decoding map
+   * @param node current node
+   * @param code current code
+   */
+  void makeDecodingMap(map<string, ext_char> &decodingMap, Node *node, const string &code) {
     if (node->one)
       makeDecodingMap(decodingMap, node->one, code + "1");
 
@@ -184,6 +230,12 @@ class huffman : public archiver {
       decodingMap[code] = node->character;
   }
 
+  /**
+   * Makes encoding map
+   * @param encodingMap encoding map
+   * @param node current node
+   * @param code current code
+   */
   void makeEncodingMap(map<ext_char, string> &encodingMap, Node *node, const string &code) {
     if (node->one)
       makeEncodingMap(encodingMap, node->one, code + "1");
@@ -196,4 +248,4 @@ class huffman : public archiver {
   }
 };
 
-#endif //HW_ARCHIVER_LIB_HUFFMAN_H_
+#endif //HW_ARCHIVER_LIB_HUFFMAN_HPP_

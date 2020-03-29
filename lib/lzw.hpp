@@ -2,23 +2,30 @@
 // Created by newap on 3/28/2020.
 //
 
-#ifndef HW_ARCHIVER_LIB_LZW_H_
-#define HW_ARCHIVER_LIB_LZW_H_
+#ifndef HW_ARCHIVER_LIB_LZW_HPP_
+#define HW_ARCHIVER_LIB_LZW_HPP_
 
-#include "archiver.h"
+#include "archiver.hpp"
 #include "types.h"
 
+/**
+ * Class for LZW compression
+ */
 class lzw : public archiver {
  public:
-  explicit lzw(const int& wordLength) {
+  /**
+   * Default constrcutor
+   * @param wordLength word length for compression
+   */
+  explicit lzw(const int &wordLength) {
     _wordLength = wordLength;
   }
 
-  void compress(const string& inFileName, const string& outFileName) override {
+  void compress(const string &inFileName, const string &outFileName) override {
     archiver::compress(inFileName, outFileName);
   }
 
-  void decompress(const string& inFileName, const string& outFileName) override {
+  void decompress(const string &inFileName, const string &outFileName) override {
     archiver::decompress(inFileName, outFileName);
   }
 
@@ -27,14 +34,22 @@ class lzw : public archiver {
     compress(contents, out);
   }
 
-  void decompress(istream& in, ostream& out) override {
+  void decompress(istream &in, ostream &out) override {
     vector<uint8_t> contents = getContents(in);
     decompress(contents, out);
   }
 
  private:
+  /**
+   * word length fro compression
+   */
   int _wordLength;
 
+  /**
+   * Compress contents and writes to output stream
+   * @param contents contents
+   * @param out output stream
+   */
   void compress(const vector<uint8_t> &contents, ostream &out) {
     int MAX_SIZE = 1 << (_wordLength - 1);
 
@@ -66,6 +81,11 @@ class lzw : public archiver {
     bout.writeToStream(out);
   }
 
+  /**
+ * Decompress contents and writes to output stream
+ * @param contents contents
+ * @param out output stream
+ */
   void decompress(const vector<uint8_t> &contents, ostream &out) {
     int MAX_SIZE = 1 << (_wordLength - 1);
 
@@ -94,4 +114,4 @@ class lzw : public archiver {
   }
 };
 
-#endif //HW_ARCHIVER_LIB_LZW_H_
+#endif //HW_ARCHIVER_LIB_LZW_HPP_

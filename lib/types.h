@@ -74,11 +74,31 @@ struct compare {
   }
 };
 
+/**
+ * Structure for stroing LZ77 results
+ */
 struct Triplet {
+  /**
+   * Starting index of the match
+   */
   uint64_t j;
+
+  /**
+   * Length of the match
+   */
   uint64_t k;
+
+  /**
+   * Next byte after the match
+   */
   uint8_t c;
 
+  /**
+   * Default constructor
+   * @param j index of the match
+   * @param k length of the match
+   * @param c next byte after the match
+   */
   Triplet(uint64_t j, uint64_t k, uint8_t c) {
     this->j = j;
     this->k = k;

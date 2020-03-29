@@ -2,11 +2,12 @@
 // Created by newap on 3/28/2020.
 //
 
-#ifndef HW_ARCHIVER_LIB_LZ77_H_
-#define HW_ARCHIVER_LIB_LZ77_H_
+#ifndef HW_ARCHIVER_LIB_LZ77_HPP_
+#define HW_ARCHIVER_LIB_LZ77_HPP_
 
 #include "types.h"
-#include "archiver.h"
+#include "archiver.hpp"
+#include "bitbuf.hpp"
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -35,10 +36,27 @@ struct lz77 : archiver {
   }
 
  private:
+  /**
+   * Size for storing Triplet's j
+   */
   static constexpr unsigned int J = countBits(S - 1);
+
+  /**
+ * Size for storing Triplet's k
+ */
   static constexpr unsigned int K = countBits(T);
+
+  /**
+ * Size for storing Triplet's c
+ */
   static constexpr unsigned int C = BYTE_SIZE;
 
+  /**
+   * Gets triplet from bitbuf and returns true if it was successful and false otherwise
+   * @param triplet triplet
+   * @param bin bitbuf
+   * @return returns true if it was successful and false otherwise
+   */
   bool getTriplet(Triplet &triplet, ibitbuf &bin) {
 
     uint8_t c;
@@ -55,6 +73,11 @@ struct lz77 : archiver {
     return true;
   }
 
+  /**
+   * Adds triplet to bitbuf
+   * @param triplet tirplet
+   * @param bout bitbuf
+   */
   void addTriplet(const Triplet &triplet, obitbuf &bout) {
     uint64_t result = combineNumber(triplet.j - 1, triplet.k, triplet.c, K, C);
 
@@ -65,6 +88,12 @@ struct lz77 : archiver {
       bout.writeBit(b[i]);
   }
 
+  /**
+   * Finds the next triplet from given contents and index
+   * @param i index
+   * @param contents contents
+   * @return next triplet
+   */
   Triplet find(int i, const vector<uint8_t> &contents) {
     int start, end;
     start = max(0, i - S);
@@ -92,10 +121,15 @@ struct lz77 : archiver {
     return Triplet(fndIndex, maxLen, contents[lstart + maxLen]);
   }
 
+  /**
+ * Compress contents and writes to output stream
+ * @param contents contents
+ * @param out output stream
+ */
   void compress(const vector<uint8_t> &contents, ostream &out) {
     obitbuf bout;
 
-    for (size_t i = 0; i < contents.size(); i++) {
+    for (int i = 0; i < contents.size(); i++) {
       Triplet triplet = find(i, contents);
       addTriplet(triplet, bout);
       i += triplet.k;
@@ -104,6 +138,11 @@ struct lz77 : archiver {
     bout.writeToStream(out);
   }
 
+  /**
+ * Decompress contents and writes to output stream
+ * @param contents contents
+ * @param out output stream
+ */
   void decompress(const vector<uint8_t> &contents, ostream &out) {
     ibitbuf bin(contents);
 
@@ -120,11 +159,13 @@ struct lz77 : archiver {
       result.push_back(triplet.c);
     }
 
-    result.pop_back();
+    // checks if byte exists in the last position
+    if (triplet.c == 0)
+      result.pop_back();
 
     for (const uint8_t &val: result)
       out.put(val);
   }
 };
 
-#endif //HW_ARCHIVER_LIB_LZ77_H_
+#endif //HW_ARCHIVER_LIB_LZ77_HPP_

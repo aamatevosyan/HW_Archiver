@@ -522,3 +522,8 @@ healthchecksdb
 MigrationBackup/
 
 # End of https://www.gitignore.io/api/c++,cmake,clion,xcode,visualstudio
+/DATA/compressed/
+/DATA/uncompressed/
+/DATA/results/
+/DATA.zip
+/DATA/results.xlsx
