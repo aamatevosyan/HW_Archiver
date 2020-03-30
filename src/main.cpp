@@ -1,9 +1,35 @@
+// КДЗ по дисциплине Алгоритмы и структуры данных, 2019-2020 уч.год
+// Матевосян Армен Арсенович, группа БПИ-181, дата (07.04.2020)
+// Среда разработки, CLion, MinGW 9.3.0 x64, Windows 10
+//
+// Cостав исходных файлов:
+//
+// src/main.cpp
+// lib/bitbuf.hpp
+// lib/timer.hpp
+// lib/types.h
+// lib/utils.h
+// lib/archiver.hpp
+// lib/huffman.hpp
+// lib/lz77.hpp
+// lib/lzw.hpp
+//
+// Реализованы следуюшие функции:
+//
+// сжатие и распаковка методом Хаффмана
+// сжатие и распаковка методом LZ77
+// сжатие и распаковка методом LZW
+// проведен вычислительный эксперимент
+// построены таблицы и графики, для измерения времени выполнения использовалось структура Timer
+// оформлен отчет
+
 #include <iostream>
 #include "../lib/archiver.hpp"
 #include "../lib/huffman.hpp"
 #include "../lib/lz77.hpp"
 #include "../lib/lzw.hpp"
 #include "../lib/timer.hpp"
+
 using namespace std;
 
 /**
@@ -25,20 +51,20 @@ const string RESULTS_PATH = DATA_PATH + "results\\";
  * @return archivers
  */
 vector<archiver *> getArchivers() {
-  vector<archiver *> archivers;
+    vector<archiver *> archivers;
 
-  archivers.push_back(new huffman());
-  archivers.push_back(new lz77<4 * KB, KB>());
-  archivers.push_back(new lz77<8 * KB, 2 * KB>());
-  archivers.push_back(new lz77<16 * KB, 4 * KB>());
-  archivers.push_back(new lzw(16));
+    archivers.push_back(new huffman());
+    archivers.push_back(new lz77<4 * KB, KB>());
+    archivers.push_back(new lz77<8 * KB, 2 * KB>());
+    archivers.push_back(new lz77<16 * KB, 4 * KB>());
+    archivers.push_back(new lzw(16));
 
-  return archivers;
+    return archivers;
 }
 
 void freeArchivers(const vector<archiver *> &archivers) {
-  for (auto &el: archivers)
-    delete el;
+    for (auto &el: archivers)
+        delete el;
 }
 
 /**
@@ -46,15 +72,15 @@ void freeArchivers(const vector<archiver *> &archivers) {
  * @return endings for compression
  */
 vector<string> getCompressedEndings() {
-  vector<string> compressedEndings;
+    vector<string> compressedEndings;
 
-  compressedEndings.emplace_back("haff");
-  compressedEndings.emplace_back("lz775");
-  compressedEndings.emplace_back("lz7710");
-  compressedEndings.emplace_back("lz7720");
-  compressedEndings.emplace_back("lzw");
+    compressedEndings.emplace_back("haff");
+    compressedEndings.emplace_back("lz775");
+    compressedEndings.emplace_back("lz7710");
+    compressedEndings.emplace_back("lz7720");
+    compressedEndings.emplace_back("lzw");
 
-  return compressedEndings;
+    return compressedEndings;
 }
 
 /**
@@ -62,15 +88,15 @@ vector<string> getCompressedEndings() {
  * @return endings for decompression
  */
 vector<string> getUncompressedEndings() {
-  vector<string> uncompressedEndings;
+    vector<string> uncompressedEndings;
 
-  uncompressedEndings.emplace_back("unhaff");
-  uncompressedEndings.emplace_back("unlz775");
-  uncompressedEndings.emplace_back("unlz7710");
-  uncompressedEndings.emplace_back("unlz7720");
-  uncompressedEndings.emplace_back("unlzw");
+    uncompressedEndings.emplace_back("unhaff");
+    uncompressedEndings.emplace_back("unlz775");
+    uncompressedEndings.emplace_back("unlz7710");
+    uncompressedEndings.emplace_back("unlz7720");
+    uncompressedEndings.emplace_back("unlzw");
 
-  return uncompressedEndings;
+    return uncompressedEndings;
 }
 
 /**
@@ -78,20 +104,20 @@ vector<string> getUncompressedEndings() {
  * @return data filenames
  */
 vector<string> getDatFileNames() {
-  vector<string> dataFileNames;
+    vector<string> dataFileNames;
 
-  dataFileNames.emplace_back("1.mp4");
-  dataFileNames.emplace_back("2.docx");
-  dataFileNames.emplace_back("3.exe");
-  dataFileNames.emplace_back("4.pdf");
-  dataFileNames.emplace_back("5.pptx");
-  dataFileNames.emplace_back("6.txt");
-  dataFileNames.emplace_back("7.bmp");
-  dataFileNames.emplace_back("8.jpg");
-  dataFileNames.emplace_back("9.bmp");
-  dataFileNames.emplace_back("10.jpg");
+    dataFileNames.emplace_back("1.mp4");
+    dataFileNames.emplace_back("2.docx");
+    dataFileNames.emplace_back("3.exe");
+    dataFileNames.emplace_back("4.pdf");
+    dataFileNames.emplace_back("5.pptx");
+    dataFileNames.emplace_back("6.txt");
+    dataFileNames.emplace_back("7.bmp");
+    dataFileNames.emplace_back("8.jpg");
+    dataFileNames.emplace_back("9.bmp");
+    dataFileNames.emplace_back("10.jpg");
 
-  return dataFileNames;
+    return dataFileNames;
 }
 
 /**
@@ -99,36 +125,36 @@ vector<string> getDatFileNames() {
  * @param dataFileNames filenames
  */
 void setupFileDetails(const vector<string> &dataFileNames) {
-  huffman h;
+    huffman h;
 
-  for (const auto &dataFileName : dataFileNames) {
+    for (const auto &dataFileName : dataFileNames) {
 
-    string originalFilePath = ORIGINAL_PATH + dataFileName;
-    string detailsFilePath = originalFilePath + ".details.csv";
-    string entropyFilePath = originalFilePath + ".entropy.txt";
-    string sizeFilePath = originalFilePath + ".size.txt";
+        string originalFilePath = ORIGINAL_PATH + dataFileName;
+        string detailsFilePath = originalFilePath + ".details.txt";
+        string entropyFilePath = originalFilePath + ".entropy.txt";
+        string sizeFilePath = originalFilePath + ".size.txt";
 
-    size_t size;
-    double entropy;
-    vector<int> freqs;
+        size_t size;
+        double entropy;
+        vector<int> freqs;
 
-    h.getDetails(originalFilePath, size, freqs, entropy);
+        h.getDetails(originalFilePath, size, freqs, entropy);
 
-    ofstream fsize(sizeFilePath, ios::out);
-    fsize << size << endl;
-    fsize.close();
+        ofstream fsize(sizeFilePath, ios::out);
+        fsize << size << endl;
+        fsize.close();
 
-    ofstream fentropy(entropyFilePath, ios::out);
-    fentropy << entropy << endl;
-    fentropy.close();
+        ofstream fentropy(entropyFilePath, ios::out);
+        fentropy << entropy << endl;
+        fentropy.close();
 
-    ofstream fdetails(detailsFilePath, ios::out);
+        ofstream fdetails(detailsFilePath, ios::out);
 
-    for (const int &freq : freqs)
-      fdetails << freq << endl;
+        for (const int &freq : freqs)
+            fdetails << freq << endl;
 
-    fdetails.close();
-  }
+        fdetails.close();
+    }
 }
 
 /**
@@ -147,60 +173,62 @@ void startExperiment(const vector<archiver *> &archivers,
                      const int MEASURES_COUNT,
                      const int IGNORED_MEASURES_COUNT) {
 
-  const unsigned int ARCHIVERS_COUNT = archivers.size();
-  const unsigned int FILES_COUNT = getDatFileNames().size();
+    const unsigned int ARCHIVERS_COUNT = archivers.size();
+    const unsigned int FILES_COUNT = getDatFileNames().size();
 
-  Timer timer;
+    Timer timer;
 
-  for (int i = 0; i < ARCHIVERS_COUNT; i++) {
-    archiver *arch = archivers[i];
+    for (int i = 0; i < ARCHIVERS_COUNT; i++) {
+        archiver *arch = archivers[i];
 
-    cout << "Archiver: " << i + 1 << " was started" << endl;
+        cout << "Archiver: " << i + 1 << " was started" << endl;
 
-    string timeCSVPath = RESULTS_PATH + compressedEndings[i] + ".times.csv";
-    string sizeCSVPath = RESULTS_PATH + compressedEndings[i] + ".size.txt";
-    string matchCSVPath = RESULTS_PATH + compressedEndings[i] + ".match.txt";
-    ofstream ftime(timeCSVPath, ios::out);
-    ofstream fsize(sizeCSVPath, ios::out);
-    ofstream fmatch(matchCSVPath, ios::out);
+        string timesFilePath = RESULTS_PATH + compressedEndings[i] + ".times.txt";
+        string sizesFilePath = RESULTS_PATH + compressedEndings[i] + ".sizes.txt";
+        string matchesFilePath = RESULTS_PATH + compressedEndings[i] + ".matches.txt";
 
-    for (int j = 0; j < FILES_COUNT; j++) {
-      string originalFilePath = ORIGINAL_PATH + dataFileNames[j];
-      string compressedFilePath = COMPRESSED_PATH + dataFileNames[j] + "." + compressedEndings[i];
-      string uncompressedFilePath = UNCOMPRESSED_PATH + dataFileNames[j] + "." + uncompressedEndings[i];
+        ofstream ftime(timesFilePath, ios::out);
+        ofstream fsize(sizesFilePath, ios::out);
+        ofstream fmatch(matchesFilePath, ios::out);
 
-      cout << "File: " << j + 1 << " was loaded" << endl;
+        for (int j = 0; j < FILES_COUNT; j++) {
+            string originalFilePath = ORIGINAL_PATH + dataFileNames[j];
+            string compressedFilePath = COMPRESSED_PATH + dataFileNames[j] + "." + compressedEndings[i];
+            string uncompressedFilePath = UNCOMPRESSED_PATH + dataFileNames[j] + "." + uncompressedEndings[i];
 
-      double compressTime = 0, decompressTime = 0;
+            cout << "File: " << j + 1 << " was loaded" << endl;
 
-      for (int k = 0; k < IGNORED_MEASURES_COUNT; k++) {
-        arch->compress(originalFilePath, compressedFilePath);
-        arch->decompress(compressedFilePath, uncompressedFilePath);
-      }
+            double compressTime = 0, decompressTime = 0;
 
-      for (int k = 0; k < MEASURES_COUNT; k++) {
-        timer.reset();
-        arch->compress(originalFilePath, compressedFilePath);
-        compressTime += timer.elapsed();
+            // ignoring results
+            for (int k = 0; k < IGNORED_MEASURES_COUNT; k++) {
+                arch->compress(originalFilePath, compressedFilePath);
+                arch->decompress(compressedFilePath, uncompressedFilePath);
+            }
 
-        timer.reset();
-        arch->decompress(compressedFilePath, uncompressedFilePath);
-        decompressTime += timer.elapsed();
-      }
+            for (int k = 0; k < MEASURES_COUNT; k++) {
+                timer.reset();
+                arch->compress(originalFilePath, compressedFilePath);
+                compressTime += timer.elapsed();
 
-      compressTime /= MEASURES_COUNT;
-      decompressTime /= MEASURES_COUNT;
+                timer.reset();
+                arch->decompress(compressedFilePath, uncompressedFilePath);
+                decompressTime += timer.elapsed();
+            }
 
-      ftime << compressTime << " " << decompressTime << endl;
-      fsize << arch->getSize(compressedFilePath) << endl;
-      fmatch << (arch->compareFiles(arch->getContents(originalFilePath),
-                                    arch->getContents(uncompressedFilePath)) ? "Match" : "Dismatch") << endl;
+            compressTime /= MEASURES_COUNT;
+            decompressTime /= MEASURES_COUNT;
+
+            ftime << compressTime << " " << decompressTime << endl;
+            fsize << arch->getSize(compressedFilePath) << endl;
+            fmatch << (arch->compareFiles(arch->getContents(originalFilePath),
+                                          arch->getContents(uncompressedFilePath)) ? "Matches" : "Differs") << endl;
+        }
+
+        ftime.close();
+        fsize.close();
+        fmatch.close();
     }
-
-    ftime.close();
-    fsize.close();
-    fmatch.close();
-  }
 }
 
 /**
@@ -208,14 +236,14 @@ void startExperiment(const vector<archiver *> &archivers,
  * @return exit code
  */
 int main() {
-  vector<archiver *> archivers = getArchivers();
-  vector<string> compressedEndings = getCompressedEndings();
-  vector<string> uncompressedEndings = getUncompressedEndings();
-  vector<string> dataFileNames = getDatFileNames();
+    vector<archiver *> archivers = getArchivers();
+    vector<string> compressedEndings = getCompressedEndings();
+    vector<string> uncompressedEndings = getUncompressedEndings();
+    vector<string> dataFileNames = getDatFileNames();
 
-  setupFileDetails(dataFileNames);
-  startExperiment(archivers, compressedEndings, uncompressedEndings, dataFileNames, 1, 0);
+    setupFileDetails(dataFileNames);
+    startExperiment(archivers, compressedEndings, uncompressedEndings, dataFileNames, 1, 0);
 
-  freeArchivers(archivers);
-  return 0;
+    freeArchivers(archivers);
+    return 0;
 }
