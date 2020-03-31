@@ -59,18 +59,17 @@ struct lz77 : archiver {
    */
   bool getTriplet(Triplet &triplet, ibitbuf &bin) {
 
-    uint8_t c;
-    uint64_t k;
-    uint64_t j;
+    uint8_t c = 0;
+    uint64_t k = 0;
+    uint64_t j = 0;
 
-    if (!bin.getData(c, C) || !bin.getData(k, K) || !bin.getData(j, J))
-      return false;
+    bool res = bin.getData(c, C) && bin.getData(k, K) && bin.getData(j, J);
 
     triplet.j = j + 1;
     triplet.k = k;
     triplet.c = c;
 
-    return true;
+    return res;
   }
 
   /**
@@ -94,14 +93,14 @@ struct lz77 : archiver {
    * @param contents contents
    * @return next triplet
    */
-  Triplet find(int i, const vector<uint8_t> &contents) {
-    int start, end;
-    start = max(0, i - S);
+  Triplet find(int64_t i, const vector<uint8_t> &contents) {
+    int64_t start, end;
+    start = (0 > i - S) ? 0 : i - S;
     end = i - 1;
 
-    int lstart, lend;
+    int64_t lstart, lend;
     lstart = i;
-    lend = min((int) contents.size() - 1, T + i - 1);
+    lend = (contents.size() - 1 > T + i - 1) ? T + i - 1 : contents.size() - 1;
 
     int maxLen = 0, j, fndIndex = 0;
     for (i = start; i <= end; i++) {
@@ -128,12 +127,15 @@ struct lz77 : archiver {
  */
   void compress(const vector<uint8_t> &contents, ostream &out) {
     obitbuf bout;
+    uint64_t i;
 
-    for (int i = 0; i < contents.size(); i++) {
+    for (i = 0; i < contents.size(); i++) {
       Triplet triplet = find(i, contents);
       addTriplet(triplet, bout);
       i += triplet.k;
     }
+
+    bout.writeBit(i > contents.size());
 
     bout.writeToStream(out);
   }
@@ -160,8 +162,8 @@ struct lz77 : archiver {
     }
 
     // checks if byte exists in the last position
-    if (triplet.c == 0)
-      result.pop_back();
+    if (triplet.c != 0)
+        result.pop_back();
 
     for (const uint8_t &val: result)
       out.put(val);
