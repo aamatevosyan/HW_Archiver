@@ -237,12 +237,13 @@ void startExperiment(const vector<archiver *> &archivers,
  */
 int main() {
     vector<archiver *> archivers = getArchivers();
+
     vector<string> compressedEndings = getCompressedEndings();
     vector<string> uncompressedEndings = getUncompressedEndings();
     vector<string> dataFileNames = getDatFileNames();
 
     setupFileDetails(dataFileNames);
-    startExperiment(archivers, compressedEndings, uncompressedEndings, dataFileNames, 1, 0);
+    startExperiment(archivers, compressedEndings, uncompressedEndings, dataFileNames, 20, 10);
 
     freeArchivers(archivers);
     return 0;

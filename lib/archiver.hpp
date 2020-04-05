@@ -103,15 +103,10 @@ class archiver {
 
     entropy = 0;
 
-    int M = 0;
-    for (int i = 0; i < MAX_CHAR; i++)
-      if (freqs[i] != 0)
-        M++;
-
     for (int i = 0; i < MAX_CHAR; i++) {
       if (freqs[i] != 0) {
-        double p_x = (double) freqs[i] / M;
-        if (p_x > 0) entropy -= p_x * log(p_x) / log(2);
+          double p_x = (double) freqs[i] / size;
+          entropy -= p_x * log(p_x) / log(256);
       }
     }
   }

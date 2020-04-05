@@ -169,8 +169,8 @@ class huffman : public archiver {
    * @param out output stream
    */
   void encode(vector<uint8_t> &contents, Node *tree, ostream &out) {
-    map<ext_char, string> encodingMap;
-    string code;
+    unordered_map<ext_char, string> encodingMap;
+      string code;
     makeEncodingMap(encodingMap, tree, code);
 
     obitbuf bout;
@@ -189,63 +189,46 @@ class huffman : public archiver {
  * @param out output stream
  */
   void decode(istream &in, Node *tree, ostream &out) {
-    map<string, ext_char> decodingMap;
-    string code;
-    makeDecodingMap(decodingMap, tree, code);
+      ibitbuf bin(in);
 
-    ibitbuf bin(in);
+      int bit;
+      Node *root = tree;
+      Node *curr = root;
 
-    string curr;
-    int bit;
+      while (true) {
+          bit = bin.readBit();
 
-    while (true) {
-      bit = bin.readBit();
-      curr += (bit == 1) ? '1' : '0';
+          if (bit == 1)
+              curr = curr->one;
+          else if (bit == 0)
+              curr = curr->zero;
 
-      if (decodingMap.count(curr) > 0) {
-        ext_char ch = decodingMap[curr];
+          if (curr->character == PSEUDO_EOF)
+              break;
 
-        if (ch == PSEUDO_EOF) break;
-
-        out << (char) ch;
-        curr = "";
+          if (curr->character != NOT_A_CHAR) {
+              out << (char) curr->character;
+              curr = root;
+          }
       }
+  }
+
+    /**
+     * Makes encoding map
+     * @param encodingMap encoding map
+     * @param node current node
+     * @param code current code
+     */
+    void makeEncodingMap(unordered_map<ext_char, string> &encodingMap, Node *node, const string &code) {
+        if (node->one)
+            makeEncodingMap(encodingMap, node->one, code + "1");
+
+        if (node->zero)
+            makeEncodingMap(encodingMap, node->zero, code + "0");
+
+        if (node->character != NOT_A_CHAR)
+            encodingMap[node->character] = code;
     }
-  }
-
-  /**
-   * Makes decoding map
-   * @param decodingMap decoding map
-   * @param node current node
-   * @param code current code
-   */
-  void makeDecodingMap(map<string, ext_char> &decodingMap, Node *node, const string &code) {
-    if (node->one)
-      makeDecodingMap(decodingMap, node->one, code + "1");
-
-    if (node->zero)
-      makeDecodingMap(decodingMap, node->zero, code + "0");
-
-    if (node->character != NOT_A_CHAR)
-      decodingMap[code] = node->character;
-  }
-
-  /**
-   * Makes encoding map
-   * @param encodingMap encoding map
-   * @param node current node
-   * @param code current code
-   */
-  void makeEncodingMap(map<ext_char, string> &encodingMap, Node *node, const string &code) {
-    if (node->one)
-      makeEncodingMap(encodingMap, node->one, code + "1");
-
-    if (node->zero)
-      makeEncodingMap(encodingMap, node->zero, code + "0");
-
-    if (node->character != NOT_A_CHAR)
-      encodingMap[node->character] = code;
-  }
 };
 
 #endif //HW_ARCHIVER_LIB_HUFFMAN_HPP_
